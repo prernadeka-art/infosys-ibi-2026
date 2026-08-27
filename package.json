@@ -1,0 +1,28 @@
+{
+  "name": "infosys-ibi-2026",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "assets": "node scripts/sanitize-assets.mjs",
+    "scrub": "node scripts/brand-scrub.mjs"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "motion": "^13.1.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^4.7.0",
+    "sharp": "^0.35.4",
+    "typescript": "~5.8.3",
+    "vite": "^6.4.3"
+  }
+}
