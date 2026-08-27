@@ -1,23 +1,15 @@
 import { useRef } from "react";
-import { LayoutGroup } from "motion/react";
-import { BackTop, Grain, Nav, Progress, SideDots } from "./chrome/Chrome";
+import { Nav, Progress } from "./chrome/Chrome";
 import { LightboxProvider } from "./chrome/Lightbox";
 import {
+  Arrival,
   Brief,
-  Hero,
-  Installs,
-  Journey,
-  Look,
-  MainApproach,
-  Mechanics,
-  PostClose,
-  PreEvent,
-  Prefunction,
-  StageCraft,
-  Talent,
-  VenueAgenda,
-  Winners,
-} from "./sections/Chapters";
+  BuildUp,
+  Close,
+  Floor,
+  Tank,
+  Voices,
+} from "./sections/Experiences";
 import { useReducedMotion, useStoryEngine } from "./story/StoryEngine";
 
 export function App() {
@@ -28,31 +20,19 @@ export function App() {
   return (
     <LightboxProvider>
       <Progress />
-      <Grain />
-      <LayoutGroup>
-        <Nav active={active} reduced={reduced} />
-        <SideDots active={active} reduced={reduced} />
-        <BackTop reduced={reduced} />
-        <div ref={root}>
-          <Hero />
-          <main>
-            <Brief />
-            <Look />
-            <Journey />
-            <PreEvent />
-            <MainApproach />
-            <VenueAgenda />
-            <Installs />
-            <Prefunction />
-            <StageCraft />
-            <Mechanics />
-            <Talent />
-            <Winners />
-            <PostClose />
-          </main>
-          <footer className="site-footer">Infosys Business Incubator 2026 · Building 50</footer>
-        </div>
-      </LayoutGroup>
+      <Nav active={active} reduced={reduced} />
+      <div className="stage-root" ref={root}>
+        <Arrival />
+        <main>
+          <Brief />
+          <BuildUp />
+          <Tank />
+          <Floor />
+          <Voices />
+          <Close />
+        </main>
+        <footer className="site-footer">Infosys Business Incubator 2026 · Building 50</footer>
+      </div>
     </LightboxProvider>
   );
 }

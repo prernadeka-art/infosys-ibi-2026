@@ -2,6 +2,7 @@ import { useEffect, useState, type RefObject } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { focusFor } from "./assets";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -17,12 +18,71 @@ export function useReducedMotion() {
   return reduced;
 }
 
-function splitTitle(el: HTMLElement) {
-  const text = el.textContent ?? "";
-  el.innerHTML = text
-    .split(/(\s+)/)
-    .map((part) => (part.trim() ? `<span class="w">${part}</span>` : part))
-    .join("");
+function setClimate(value: string | null) {
+  if (value) document.documentElement.setAttribute("data-climate", value);
+  else document.documentElement.removeAttribute("data-climate");
+}
+
+function wirePin(id: string, reduced: boolean) {
+  const shell = document.querySelector<HTMLElement>(`[data-pin="${id}"]`);
+  if (!shell) return;
+
+  const beats = Array.from(shell.querySelectorAll<HTMLElement>("[data-beat]"));
+  const imgs = Array.from(shell.querySelectorAll<HTMLImageElement>(".pin-still img"));
+  const kicker = shell.querySelector<HTMLElement>("[data-pin-kicker]");
+  const title = shell.querySelector<HTMLElement>("[data-pin-title]");
+  const body = shell.querySelector<HTMLElement>("[data-pin-body]");
+  const motif = shell.querySelector<HTMLElement>("[data-pin-motif]");
+  const steps = Array.from(shell.querySelectorAll<HTMLElement>("[data-pin-step]"));
+  if (!beats.length) return;
+
+  const apply = (index: number) => {
+    const beat = beats[Math.min(index, beats.length - 1)];
+    imgs.forEach((img, i) => {
+      img.classList.toggle("is-active", i === index);
+      if (i === index) img.style.objectPosition = focusFor(img.src);
+      if (beat.dataset.contain === "1" && i === index) {
+        img.style.objectFit = "contain";
+        img.style.background = "#050506";
+      } else if (i === index) {
+        img.style.objectFit = "cover";
+      }
+    });
+    steps.forEach((s, i) => s.classList.toggle("is-active", i === index));
+    if (kicker) kicker.textContent = beat.dataset.kicker ?? "";
+    if (title) title.textContent = beat.dataset.title ?? "";
+    if (body) body.textContent = beat.dataset.body ?? "";
+    if (motif) motif.textContent = beat.dataset.motif || motif.textContent;
+  };
+
+  apply(0);
+
+  if (reduced) {
+    ScrollTrigger.create({
+      trigger: shell,
+      start: "top 40%",
+      end: "bottom 40%",
+      onEnter: () => setClimate(shell.dataset.climate ?? null),
+      onEnterBack: () => setClimate(shell.dataset.climate ?? null),
+    });
+    return;
+  }
+
+  const endMul = Math.max(beats.length, 2) * 0.95;
+  ScrollTrigger.create({
+    trigger: shell,
+    start: "top top",
+    end: () => `+=${window.innerHeight * endMul}`,
+    pin: true,
+    scrub: 0.95,
+    anticipatePin: 1,
+    onUpdate: (self) => {
+      const idx = Math.min(beats.length - 1, Math.floor(self.progress * beats.length));
+      apply(idx);
+    },
+    onEnter: () => setClimate(shell.dataset.climate ?? null),
+    onEnterBack: () => setClimate(shell.dataset.climate ?? null),
+  });
 }
 
 export function useStoryEngine(scope: RefObject<HTMLElement | null>, reduced: boolean) {
@@ -49,108 +109,62 @@ export function useStoryEngine(scope: RefObject<HTMLElement | null>, reduced: bo
           start: "top 45%",
           end: "bottom 45%",
           onToggle: (self) => {
-            if (self.isActive) setActive(section.id);
+            if (self.isActive) {
+              setActive(section.id);
+              if (section.dataset.climate) setClimate(section.dataset.climate);
+            }
           },
         });
       });
 
-      if (reduced) {
-        gsap.set(".reveal, .split .w, .hero-spot", { opacity: 1, y: 0, clearProps: "transform" });
-        return;
-      }
-
-      root.querySelectorAll<HTMLElement>(".split").forEach(splitTitle);
-
-      gsap.from(".hero .w", {
-        y: 40,
-        opacity: 0,
-        stagger: 0.045,
-        duration: 0.85,
-        ease: "power3.out",
-        delay: 0.12,
-      });
-      gsap.from(".hero .body-lg, .hero__meta, .scroll-cue", {
-        y: 20,
-        opacity: 0,
-        stagger: 0.08,
-        duration: 0.7,
-        ease: "power2.out",
-        delay: 0.35,
-      });
-
-      const spot = root.querySelector<HTMLElement>(".hero-spot");
-      if (spot) {
+      const arrival = root.querySelector<HTMLElement>("#arrival");
+      const atm = root.querySelector<HTMLElement>("[data-arrival-atm]");
+      if (arrival && atm && !reduced) {
         gsap.fromTo(
-          spot,
-          { scale: 1.15, opacity: 0.35 },
+          atm,
+          { opacity: 0 },
           {
-            scale: 1,
-            opacity: 1,
+            opacity: 0.35,
             ease: "none",
             scrollTrigger: {
-              trigger: "#hero",
+              trigger: arrival,
               start: "top top",
               end: "bottom top",
               scrub: true,
             },
           },
         );
-      }
-
-      ScrollTrigger.batch(".reveal", {
-        start: "top 82%",
-        onEnter: (els) =>
-          gsap.fromTo(
-            els,
-            { y: 36, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.75, stagger: 0.1, ease: "power3.out", overwrite: "auto" },
-          ),
-      });
-
-      root.querySelectorAll<HTMLElement>("h2.split").forEach((title) => {
-        const words = title.querySelectorAll(".w");
-        if (!words.length) return;
-        gsap.from(words, {
+        gsap.from(".arrival__word, .arrival__line, .arrival__meta", {
           y: 28,
           opacity: 0,
-          stagger: 0.05,
-          duration: 0.7,
+          stagger: 0.08,
+          duration: 0.85,
           ease: "power3.out",
-          scrollTrigger: { trigger: title, start: "top 80%" },
+          delay: 0.1,
         });
-      });
-
-      const pinOk = window.innerWidth >= 768;
-      const moodPin = root.querySelector<HTMLElement>(".mood-pin");
-      const moodTrack = root.querySelector<HTMLElement>(".mood-track");
-      if (pinOk && moodPin && moodTrack) {
-        gsap.to(moodTrack, {
-          x: () => -(moodTrack.scrollWidth - window.innerWidth),
-          ease: "none",
-          scrollTrigger: {
-            trigger: moodPin,
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            end: () => `+=${Math.max(moodTrack.scrollWidth - window.innerWidth, 700)}`,
-            invalidateOnRefresh: true,
-          },
-        });
+      } else if (atm) {
+        atm.style.opacity = "0.28";
       }
 
-      const actsPin = root.querySelector<HTMLElement>(".acts-pin");
-      const actsTrack = root.querySelector<HTMLElement>(".acts-track");
-      if (pinOk && actsPin && actsTrack) {
-        gsap.to(actsTrack, {
-          x: () => -(actsTrack.scrollWidth - window.innerWidth),
+      wirePin("buildup", reduced);
+      wirePin("tank", reduced);
+      wirePin("floor", reduced);
+
+      const voices = root.querySelector<HTMLElement>("[data-voices]");
+      const track = root.querySelector<HTMLElement>("[data-voices-track]");
+      if (voices && track && !reduced && window.innerWidth >= 768) {
+        gsap.to(track, {
+          x: () => -(track.scrollWidth - window.innerWidth + 48),
           ease: "none",
           scrollTrigger: {
-            trigger: actsPin,
+            trigger: voices,
             pin: true,
             scrub: 1,
             anticipatePin: 1,
-            end: () => `+=${Math.max(actsTrack.scrollWidth - window.innerWidth, 900)}`,
+            end: () => `+=${Math.max(track.scrollWidth - window.innerWidth, 600)}`,
             invalidateOnRefresh: true,
+            onEnter: () => setClimate("celebrate"),
+            onEnterBack: () => setClimate("celebrate"),
           },
         });
       }

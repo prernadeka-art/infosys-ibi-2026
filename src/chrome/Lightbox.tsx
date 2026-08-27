@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { focusFor } from "../story/assets";
 
 type Box = { src: string; alt: string };
 type Ctx = { open: (src: string, alt?: string) => void };
@@ -38,7 +39,7 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
             onClick={() => setBox(null)}
           >
             <button className="lightbox__x" type="button" aria-label="Close" onClick={() => setBox(null)}>
@@ -47,10 +48,10 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
             <motion.img
               src={box.src}
               alt={box.alt}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
@@ -60,22 +61,38 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function Media({
+export function StillPlane({
   src,
   alt,
-  wide,
-  tall,
+  active,
 }: {
   src: string;
   alt: string;
-  wide?: boolean;
-  tall?: boolean;
+  active?: boolean;
 }) {
-  const { open } = useLightbox();
-  const cls = ["media", wide ? "media--wide" : "", tall ? "media--tall" : ""].filter(Boolean).join(" ");
   return (
-    <button className={cls} type="button" onClick={() => open(src, alt)}>
-      <img src={src} alt={alt} loading="lazy" />
-    </button>
+    <img
+      src={src}
+      alt={alt}
+      className={active ? "is-active" : ""}
+      style={{ objectPosition: focusFor(src) }}
+      loading="lazy"
+      data-still=""
+    />
+  );
+}
+
+export function PinStillHit({ shellSelector }: { shellSelector: string }) {
+  const { open } = useLightbox();
+  return (
+    <button
+      className="still-hit"
+      type="button"
+      aria-label="Expand image"
+      onClick={() => {
+        const img = document.querySelector<HTMLImageElement>(`${shellSelector} .pin-still img.is-active`);
+        if (img) open(img.currentSrc || img.src, img.alt);
+      }}
+    />
   );
 }
