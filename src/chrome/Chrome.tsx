@@ -5,6 +5,8 @@ export const NAV = [
   { id: "brief", label: "Brief" },
   { id: "buildup", label: "Build-up" },
   { id: "tank", label: "Tank" },
+  { id: "floor", label: "Floor" },
+  { id: "voices", label: "Voices" },
   { id: "close", label: "Close" },
 ];
 

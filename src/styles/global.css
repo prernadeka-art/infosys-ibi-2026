@@ -294,6 +294,85 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase; line-height: 0.92;
 }
 .close p { margin-top: 18px; color: var(--mute); }
+.close__sub {
+  margin-top: 28px !important;
+  font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--spot);
+}
+.close__still {
+  margin: 28px auto 0;
+  width: min(920px, 90vw);
+  aspect-ratio: 16 / 9;
+  overflow: hidden; background: #050506;
+}
+.close__still img { width: 100%; height: 100%; }
+
+.look {
+  padding: clamp(72px, 12vh, 120px) clamp(20px, 5vw, 72px);
+  border-top: 1px solid var(--line);
+}
+.look__head { max-width: 640px; margin-bottom: 28px; }
+.look__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 700px) { .look__grid { grid-template-columns: 1fr; } }
+.look__cell {
+  aspect-ratio: 16 / 10;
+  overflow: hidden; background: #050506;
+}
+.look__cell img { width: 100%; height: 100%; }
+
+.venue {
+  padding: clamp(72px, 12vh, 120px) clamp(20px, 5vw, 72px);
+  border-top: 1px solid var(--line);
+}
+.venue__head { max-width: 720px; margin-bottom: 28px; }
+.venue__stills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 36px;
+}
+@media (max-width: 700px) { .venue__stills { grid-template-columns: 1fr; } }
+.venue__stills img {
+  width: 100%; aspect-ratio: 16 / 10;
+  background: #050506;
+}
+.venue__agenda-title {
+  font-family: var(--font-d);
+  font-size: clamp(28px, 4vw, 40px);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.agenda {
+  display: grid; gap: 0; max-width: 720px;
+  border: 1px solid var(--line);
+}
+.agenda__row {
+  display: grid; grid-template-columns: 140px 1fr; gap: 16px;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.agenda__row:last-child { border-bottom: 0; }
+.agenda__row span:first-child {
+  font-variant-numeric: tabular-nums; color: var(--spot); font-weight: 700;
+}
+
+.cast-card__hit {
+  display: block; width: 100%; height: 100%; padding: 0;
+  position: absolute; inset: 0;
+}
+.cast-card__hit img {
+  width: 100%; height: 100%;
+}
+.cast-card__meta { pointer-events: none; z-index: 2; }
+
+.pin-still img[data-fit="contain"],
+.pin-still img.is-active {
+  background: #050506;
+}
+
 
 .site-footer {
   padding: 22px; text-align: center; color: var(--mute);

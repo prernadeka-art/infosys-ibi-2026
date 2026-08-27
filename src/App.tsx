@@ -7,8 +7,13 @@ import {
   BuildUp,
   Close,
   Floor,
+  Journey,
+  Look,
+  Stage,
   Tank,
+  Venue,
   Voices,
+  Winners,
 } from "./sections/Experiences";
 import { useReducedMotion, useStoryEngine } from "./story/StoryEngine";
 
@@ -25,10 +30,15 @@ export function App() {
         <Arrival />
         <main>
           <Brief />
+          <Look />
+          <Journey />
           <BuildUp />
           <Tank />
+          <Venue />
           <Floor />
+          <Stage />
           <Voices />
+          <Winners />
           <Close />
         </main>
         <footer className="site-footer">Infosys Business Incubator 2026 · Building 50</footer>

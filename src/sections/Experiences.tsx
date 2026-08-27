@@ -1,83 +1,291 @@
 import { PinStillHit, StillPlane, useLightbox } from "../chrome/Lightbox";
-import { asset, focusFor } from "../story/assets";
+import { asset, fitFor, metaFor } from "../story/assets";
 import {
   AGENDA,
   BRIEF,
+  BRANDING,
   FOUR_ACTS,
+  JOURNEY,
+  MECHANICS,
   META,
+  MOOD,
+  OPENING_BEATS,
   PRE_WEEKS,
   TALENT,
+  TROPHIES,
+  VENUE,
+  WINNER_TREATS,
 } from "../story/data";
 
-const BUILD_BEATS = [
+type Beat = {
+  id: string;
+  kicker: string;
+  title: string;
+  body: string;
+  src: string;
+  alt: string;
+  motif?: string;
+};
+
+function beatFitFlag(src: string) {
+  return fitFor(src) === "contain" ? "1" : "0";
+}
+
+/* ---- Full Build-up beats (HQ heroes preferred) ---- */
+const BUILD_BEATS: Beat[] = [
   {
-    id: "week1",
-    kicker: "Build-up · Week 1",
-    title: PRE_WEEKS[0].subtitle,
-    body: "Recap film, podcast heat, and the shift into a sharper Shark Tank inspired format.",
-    src: asset("week1-recap.webp"),
-    alt: "Week 1 recap film still",
+    id: "obj",
+    kicker: "Build-up · Objective",
+    title: "Momentum before the tank",
+    body: "Build anticipation for IBI 2026. Empower teams to present with confidence. Give the campus a reason to show up early.",
+    src: asset("mood-c.webp"),
+    alt: "Campus energy mood",
   },
   {
-    id: "week2",
-    kicker: "Build-up · Week 2",
-    title: PRE_WEEKS[1].subtitle,
-    body: "Leadership power statements, participant documentaries, mythbusters, and jury reveal.",
-    src: asset("week2-bytes.webp"),
-    alt: "Week 2 human story still",
+    id: "w1-recap",
+    kicker: "Week 1 · Legacy and Validation",
+    title: "Recap film",
+    body: PRE_WEEKS[0].beats[0].copy,
+    src: asset("stage-e.webp"),
+    alt: "Arena stage atmosphere for recap film",
   },
   {
-    id: "week3",
-    kicker: "Build-up · Week 3",
-    title: PRE_WEEKS[2].subtitle,
-    body: "Campus countdown, 90-second open pitches, affirmations, kits, and color tees.",
+    id: "w1-ep1",
+    kicker: "Week 1 · Snippet Episode 1",
+    title: "Winners and finalists talk",
+    body: PRE_WEEKS[0].beats[1].copy,
+    src: asset("week1-snippet.webp"),
+    alt: "Podcast episode one",
+  },
+  {
+    id: "w1-mail",
+    kicker: "Week 1 · Calendar",
+    title: "Block your calendars",
+    body: "Emailers that lock the date and start revealing who is in the room.",
+    src: asset("jury-email-a.webp"),
+    alt: "Calendar emailer",
+  },
+  {
+    id: "w2-power",
+    kicker: "Week 2 · The Human Behind the Idea",
+    title: "Power statements",
+    body: PRE_WEEKS[1].beats[0].copy,
+    src: asset("mood-d.webp"),
+    alt: "Spotlight mood for leadership statements",
+  },
+  {
+    id: "w2-ep2",
+    kicker: "Week 2 · Snippet Episode 2",
+    title: "Jury and Shark voices",
+    body: PRE_WEEKS[1].beats[1].copy,
+    src: asset("week2-snippet.webp"),
+    alt: "Podcast episode two",
+  },
+  {
+    id: "w2-bytes",
+    kicker: "Week 2 · Participant bytes",
+    title: "Documentary shorts",
+    body: PRE_WEEKS[1].beats[2].copy,
+    src: asset("week2-bytes-alt.webp"),
+    alt: "Participant documentary still",
+  },
+  {
+    id: "w2-jury",
+    kicker: "Week 2 · Jury reveal",
+    title: "Emailers that raise heat",
+    body: PRE_WEEKS[1].beats[3].copy,
+    src: asset("jury-email-b.webp"),
+    alt: "Jury reveal emailer",
+  },
+  {
+    id: "w2-wall",
+    kicker: "Week 2 · Expectation wall",
+    title: "Idea bubbles",
+    body: PRE_WEEKS[1].beats[4].copy,
+    src: asset("idea-wall.webp"),
+    alt: "Expectation idea wall",
+  },
+  {
+    id: "w2-myth",
+    kicker: "Week 2 · Mythbusters",
+    title: "Flip the myths",
+    body: PRE_WEEKS[1].beats[5].copy,
+    src: asset("mythbusters.webp"),
+    alt: "Mythbusters wall",
+  },
+  {
+    id: "w3-count",
+    kicker: "Week 3 · Countdown",
+    title: "Campus screens takeover",
+    body: PRE_WEEKS[2].beats[0].copy,
     src: asset("countdown.webp"),
-    alt: "Week 3 countdown still",
+    alt: "Countdown clock",
+  },
+  {
+    id: "w3-teaser",
+    kicker: "Week 3 · Final teaser",
+    title: "Spotlight and scrutiny",
+    body: PRE_WEEKS[2].beats[1].copy,
+    src: asset("stage-b.webp"),
+    alt: "Stage teaser atmosphere",
+  },
+  {
+    id: "w3-ep3",
+    kicker: "Week 3 · Snippet Episode 3",
+    title: "New jury, open room",
+    body: PRE_WEEKS[2].beats[2].copy,
+    src: asset("week3-snippet.webp"),
+    alt: "Podcast episode three",
+  },
+  {
+    id: "w3-90",
+    kicker: "Week 3 · Open pitch",
+    title: "90 seconds of crazy",
+    body: PRE_WEEKS[2].beats[3].copy,
+    src: asset("pitch-90.webp"),
+    alt: "Ninety second pitch",
+  },
+  {
+    id: "w3-aff",
+    kicker: "Week 3 · Affirmations",
+    title: "Cheer the finalists",
+    body: PRE_WEEKS[2].beats[4].copy,
+    src: asset("affirmations.webp"),
+    alt: "Affirmations wall",
+  },
+  {
+    id: "w3-kit",
+    kicker: "Week 3 · Gifting kit",
+    title: "Shark Tank winner products",
+    body: PRE_WEEKS[2].beats[5].copy,
+    src: asset("kit-a.webp"),
+    alt: "Finalists gifting kit",
+  },
+  {
+    id: "w3-tees",
+    kicker: "Week 3 · Team tees",
+    title: "Color-coded clarity",
+    body: PRE_WEEKS[2].beats[6].copy,
+    src: asset("team-tees.webp"),
+    alt: "Team differentiation tees",
   },
 ];
 
-const TANK_BEATS = [
+const TANK_BEATS: Beat[] = [
   {
     id: "act1",
     kicker: "Act 01 · Spectacle",
     title: FOUR_ACTS[0].title,
-    body: FOUR_ACTS[0].copy,
+    body: `${FOUR_ACTS[0].copy} ${OPENING_BEATS.join(" ")}`,
     motif: "01",
-    src: asset("opening-gimmick.webp"),
-    alt: "Opening gimmick still",
+    src: asset("opening-gimmick-alt.webp"),
+    alt: "Opening gimmick",
+  },
+  {
+    id: "act1b",
+    kicker: "Act 01 · Opening craft",
+    title: "Stage claim",
+    body: "Blackout, spotlight, leadership inauguration, and a symbolic open that owns the auditorium.",
+    motif: "GO",
+    src: asset("stage-a.webp"),
+    alt: "Main stage",
   },
   {
     id: "act2",
     kicker: "Act 02 · Pressure",
     title: FOUR_ACTS[1].title,
-    body: "Live pitches with powerplay minutes, audience IBI credits, and a jury buzzer that freezes weak claims.",
+    body: FOUR_ACTS[1].copy,
+    motif: "02",
+    src: asset("stage-c.webp"),
+    alt: "Pressure on stage",
+  },
+  {
+    id: "mech-support",
+    kicker: "Pitch craft · Support",
+    title: MECHANICS[0].title,
+    body: MECHANICS[0].copy,
+    src: asset("pitch-support-a.webp"),
+    alt: "Pitch support",
+  },
+  {
+    id: "mech-credits",
+    kicker: "Pitch craft · Credits",
+    title: MECHANICS[1].title,
+    body: MECHANICS[1].copy,
+    src: asset("credits.webp"),
+    alt: "IBI credits",
+  },
+  {
+    id: "mech-buzzer",
+    kicker: "Pitch craft · Powerplay",
+    title: MECHANICS[2].title,
+    body: MECHANICS[2].copy,
     motif: "BZ",
     src: asset("buzzer.webp"),
-    alt: "Jury buzzer still",
-    contain: true,
+    alt: "Jury buzzer",
   },
   {
     id: "act3",
     kicker: "Act 03 · Deliberation",
     title: FOUR_ACTS[2].title,
-    body: "Jury introduction and signed 30-day executive review cards that make follow-through tangible.",
+    body: FOUR_ACTS[2].copy,
+    motif: "03",
+    src: asset("stage-d.webp"),
+    alt: "Jury deliberation atmosphere",
+  },
+  {
+    id: "mech-card",
+    kicker: "Pitch craft · Commitment",
+    title: MECHANICS[3].title,
+    body: MECHANICS[3].copy,
     motif: "30",
     src: asset("commitment-card.webp"),
     alt: "Thirty day commitment card",
-    contain: true,
+  },
+  {
+    id: "mech-mock",
+    kicker: "Pitch craft · Surprise",
+    title: MECHANICS[4].title,
+    body: MECHANICS[4].copy,
+    src: asset("mood-b.webp"),
+    alt: "Mock pitch atmosphere",
   },
   {
     id: "act4",
     kicker: "Act 04 · Celebration",
     title: FOUR_ACTS[3].title,
-    body: "Laser blackout, LED umbrella reveal, gold confetti, and a winner the campus will remember.",
-    motif: "★",
+    body: FOUR_ACTS[3].copy,
+    motif: "04",
     src: asset("winner-confetti.webp"),
-    alt: "Winner confetti still",
+    alt: "Celebration confetti",
   },
 ];
 
-const FLOOR_BEATS = [
+const FLOOR_BEATS: Beat[] = [
+  ...BRANDING.map((b, i) => ({
+    id: `brand-${i}`,
+    kicker: "Floor · Branding",
+    title: b.title,
+    body: "Campus and arrival branding that makes IBI unmistakable before doors.",
+    src: b.src,
+    alt: b.alt,
+  })),
+  {
+    id: "letters",
+    kicker: "Floor · Letters",
+    title: "Letter cutout installation",
+    body: "Dimensional letter installations that brand the arrival path.",
+    src: asset("letters-a.webp"),
+    alt: "Letter cutouts",
+  },
+  {
+    id: "letters2",
+    kicker: "Floor · Letters",
+    title: "Letter cutout · Option 2",
+    body: "Alternate letter system for stronger wayfinding and photo moments.",
+    src: asset("letters-d.webp"),
+    alt: "Letter cutouts option two",
+  },
   {
     id: "tunnel",
     kicker: "Floor · Arrival",
@@ -88,51 +296,145 @@ const FLOOR_BEATS = [
   },
   {
     id: "led",
-    kicker: "Floor · Install",
-    title: "LED cube",
-    body: "A glowing volume carrying motion graphics and IBI messaging through the path.",
+    kicker: "Floor · LED cube",
+    title: "Glowing volume",
+    body: "Motion graphics and IBI messaging carried through a lit cube installation.",
     src: asset("led-a.webp"),
-    alt: "LED cube installation",
+    alt: "LED cube",
+  },
+  {
+    id: "led2",
+    kicker: "Floor · LED cube",
+    title: "Cube detail",
+    body: "Alternate angles on the LED volume for client sign-off.",
+    src: asset("led-c.webp"),
+    alt: "LED cube lit",
+  },
+  {
+    id: "totem",
+    kicker: "Floor · Totems",
+    title: "Vertical markers",
+    body: "Totems that orient guests and amplify the brand system through the path.",
+    src: asset("totem-a.webp"),
+    alt: "Totem",
   },
   {
     id: "corridor",
-    kicker: "Floor · Context",
-    title: "Data corridor",
-    body: "Unsolved markets, failed startups, Infosys milestones. Weight before the pitch.",
+    kicker: "Floor · Data corridor",
+    title: "Context before the pitch",
+    body: "Unsolved markets, failed startups, Infosys milestones. Weight before ideas hit the stage.",
     src: asset("corridor-a.webp"),
     alt: "Data corridor",
   },
   {
-    id: "lobby",
-    kicker: "Floor · Prefunction",
-    title: "Vote chips",
+    id: "gobos",
+    kicker: "Floor · Gobos",
+    title: "Projected identity",
+    body: "Gobo patterns that paint floor and walls with IBI language.",
+    src: asset("gobo-b.webp"),
+    alt: "Gobo projection",
+  },
+  {
+    id: "photo",
+    kicker: "Prefunction · Photo op",
+    title: "Shareable moments",
+    body: "Photo setups that seed the feed before doors.",
+    src: asset("photo-a.webp"),
+    alt: "Photo opportunity",
+  },
+  {
+    id: "jacket",
+    kicker: "Prefunction · Photo jacket",
+    title: "Wearable campaign",
+    body: "A jacket prop that turns guests into walking campaign stills.",
+    src: asset("photo-jacket.webp"),
+    alt: "Photo jacket",
+  },
+  {
+    id: "vote",
+    kicker: "Prefunction · Vote",
+    title: "Favourite team chips",
     body: "Color-coded chips drop into finalist boxes. Audience preference made visible.",
     src: asset("vote-chips.webp"),
-    alt: "Audience vote chips",
+    alt: "Vote chips",
+  },
+  {
+    id: "memory",
+    kicker: "Prefunction · Memory lane",
+    title: "Last year, made visible",
+    body: "A recap wall of highlights and real business outcomes from the prior IBI.",
+    src: asset("photo-b.webp"),
+    alt: "Memory lane atmosphere",
   },
 ];
 
-const CAST = [
-  ...TALENT.speakers.map((p) => ({
-    name: p.name,
-    role: "Speaker",
-    src: p.src,
-    alt: p.alt,
-    copy: p.copy,
-  })),
-  ...TALENT.comics.map((p) => ({
-    name: p.name,
-    role: "Stand-up",
-    src: p.src,
-    alt: p.alt,
-    copy: p.copy,
-  })),
-  ...TALENT.emcees.map((p) => ({
-    name: p.name,
-    role: "Emcee",
-    src: p.src,
-    alt: p.alt,
-    copy: "",
+const STAGE_BEATS: Beat[] = [
+  {
+    id: "stage-main",
+    kicker: "Stage craft",
+    title: "Building 50 stage",
+    body: "Scenic language scaled for 150+ with clear sightlines and drama.",
+    src: asset("stage-a.webp"),
+    alt: "Main stage",
+  },
+  {
+    id: "stage-light",
+    kicker: "Stage craft · Lighting",
+    title: "Light as pressure",
+    body: "Lighting cues that mark blackout, spotlight, and celebration peaks.",
+    src: asset("stage-f.webp"),
+    alt: "Stage lighting look",
+  },
+  {
+    id: "stage-back",
+    kicker: "Stage craft · Backstage live",
+    title: "Emotion before and after",
+    body: "Quick backstage captures minutes before and after each pitch.",
+    src: asset("stage-c.webp"),
+    alt: "Backstage atmosphere",
+  },
+  {
+    id: "stage-open",
+    kicker: "Stage craft · Opening",
+    title: "House lights down",
+    body: OPENING_BEATS.join(" "),
+    src: asset("stage-b.webp"),
+    alt: "Opening atmosphere",
+  },
+];
+
+const WINNER_BEATS: Beat[] = [
+  {
+    id: "win-laser",
+    kicker: "Winner treatment",
+    title: WINNER_TREATS[0].title,
+    body: WINNER_TREATS[0].copy,
+    src: asset("stage-e.webp"),
+    alt: "Laser reveal atmosphere",
+  },
+  {
+    id: "win-umb",
+    kicker: "Winner treatment",
+    title: WINNER_TREATS[1].title,
+    body: WINNER_TREATS[1].copy,
+    src: asset("winner-umbrella-alt.webp"),
+    alt: "LED umbrella reveal",
+  },
+  {
+    id: "win-conf",
+    kicker: "Winner treatment",
+    title: WINNER_TREATS[2].title,
+    body: WINNER_TREATS[2].copy,
+    src: asset("winner-confetti.webp"),
+    alt: "Gold confetti",
+  },
+  ...TROPHIES.slice(0, 4).map((t, i) => ({
+    id: `trophy-${i}`,
+    kicker: "Trophy suggestions",
+    title: `Trophy option ${i + 1}`,
+    body: "Physical trophy directions for the final beat and photography.",
+    src: t.src,
+    alt: t.alt,
   })),
 ];
 
@@ -143,23 +445,14 @@ function PinExperience({
 }: {
   id: string;
   climate: string;
-  beats: Array<{
-    id: string;
-    kicker: string;
-    title: string;
-    body: string;
-    src: string;
-    alt: string;
-    motif?: string;
-    contain?: boolean;
-  }>;
+  beats: Beat[];
 }) {
   return (
     <section className="pin-shell" id={id} data-nav data-climate={climate} data-pin={id}>
       <div className="pin-frame" data-pin-frame={id}>
         <div className="pin-still" data-pin-still={id}>
           {beats.map((b, i) => (
-            <StillPlane key={b.src} src={b.src} alt={b.alt} active={i === 0} />
+            <StillPlane key={`${b.id}-${b.src}`} src={b.src} alt={b.alt} active={i === 0} />
           ))}
           <PinStillHit shellSelector={`[data-pin="${id}"]`} />
         </div>
@@ -177,7 +470,9 @@ function PinExperience({
             <div className="act-motif" data-pin-motif>
               {beats[0].motif}
             </div>
-          ) : null}
+          ) : (
+            <div className="act-motif" data-pin-motif hidden />
+          )}
           <ul className="pin-steps" aria-hidden="true">
             {beats.map((b, i) => (
               <li key={b.id} className={i === 0 ? "is-active" : ""} data-pin-step={i} />
@@ -193,7 +488,7 @@ function PinExperience({
                 data-body={b.body}
                 data-src={b.src}
                 data-motif={b.motif ?? ""}
-                data-contain={b.contain ? "1" : "0"}
+                data-contain={beatFitFlag(b.src)}
               />
             ))}
           </div>
@@ -255,30 +550,95 @@ export function Brief() {
   );
 }
 
+export function Look() {
+  return (
+    <section className="look" id="look" data-climate="campus">
+      <div className="look__head">
+        <p className="brief__kicker">Look and feel</p>
+        <h2 className="brief__title" style={{ fontSize: "clamp(36px, 6vw, 64px)" }}>
+          Arena temperature
+        </h2>
+        <p className="brief__lead">Dark stage. Hot spotlight. Cool campus daylight between beats.</p>
+      </div>
+      <div className="look__grid">
+        {MOOD.map((m) => {
+          const meta = metaFor(m.src);
+          return (
+            <figure key={m.src} className="look__cell">
+              <img src={m.src} alt={m.alt} style={{ objectFit: meta.fit, objectPosition: meta.focus }} loading="lazy" />
+            </figure>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function Journey() {
+  return (
+    <section className="brief" id="journey" data-climate="campus">
+      <div>
+        <p className="brief__kicker">Journey</p>
+        <h2 className="brief__title" style={{ fontSize: "clamp(36px, 6vw, 64px)" }}>
+          Three movements
+        </h2>
+        <p className="brief__lead">Build heat. Hold pressure. Leave proof.</p>
+      </div>
+      <ul className="brief__points">
+        {JOURNEY.map((j, i) => (
+          <li key={j.id}>
+            0{i + 1} · {j.label}. {j.copy}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function BuildUp() {
   return <PinExperience id="buildup" climate="campus" beats={BUILD_BEATS} />;
 }
 
 export function Tank() {
+  return <PinExperience id="tank" climate="pressure" beats={TANK_BEATS} />;
+}
+
+export function Venue() {
   return (
-    <>
-      <PinExperience id="tank" climate="pressure" beats={TANK_BEATS} />
-      <aside className="brief" id="agenda" data-climate="pressure" style={{ borderTop: "none", paddingTop: 40 }}>
-        <div>
-          <p className="brief__kicker">Building 50 · Run of show</p>
-          <h2 className="brief__title" style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-            May 14 afternoon
-          </h2>
-        </div>
-        <ul className="brief__points">
-          {AGENDA.slice(0, 6).map((row) => (
-            <li key={row.item}>
-              {row.start}-{row.end} · {row.item}
-            </li>
-          ))}
-        </ul>
-      </aside>
-    </>
+    <section className="venue" id="venue" data-nav data-climate="pressure">
+      <div className="venue__head">
+        <p className="brief__kicker">Venue</p>
+        <h2 className="brief__title" style={{ fontSize: "clamp(36px, 6vw, 64px)" }}>
+          {VENUE.title}
+        </h2>
+        <p className="brief__lead">{VENUE.copy}</p>
+      </div>
+      <div className="venue__stills">
+        {VENUE.media.map((m) => {
+          const meta = metaFor(m.src);
+          return (
+            <img
+              key={m.src}
+              src={m.src}
+              alt={m.alt}
+              loading="lazy"
+              style={{ objectFit: meta.fit, objectPosition: meta.focus }}
+            />
+          );
+        })}
+      </div>
+      <h3 className="venue__agenda-title">Run of show</h3>
+      <div className="agenda">
+        {AGENDA.map((row) => (
+          <div className="agenda__row" key={`${row.start}-${row.item}`}>
+            <span>
+              {row.start}-{row.end}
+            </span>
+            <span>{row.item}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -286,46 +646,71 @@ export function Floor() {
   return <PinExperience id="floor" climate="blackout" beats={FLOOR_BEATS} />;
 }
 
+export function Stage() {
+  return <PinExperience id="stage" climate="blackout" beats={STAGE_BEATS} />;
+}
+
 export function Voices() {
   const { open } = useLightbox();
+  const cast = [
+    ...TALENT.speakers.map((p) => ({ ...p, role: "Speaker" as const })),
+    ...TALENT.comics.map((p) => ({
+      ...p,
+      role: "Stand-up" as const,
+      src: p.name.includes("Rahul") ? asset("talent-rahul-alt.webp") : p.src,
+    })),
+    ...TALENT.music.map((p) => ({ ...p, role: "Music" as const })),
+    ...TALENT.mentalists.map((p) => ({ ...p, role: "Mentalist" as const })),
+    ...TALENT.emcees.map((p) => ({ ...p, role: "Emcee" as const, copy: "" })),
+  ];
+
   return (
     <section className="voices" id="voices" data-nav data-climate="celebrate" data-voices>
       <div className="voices__head">
         <p className="brief__kicker">Voices</p>
         <h2>Cast for the room</h2>
-        <p>Speakers, stand-up, and emcees as options. Scroll sideways through the cast.</p>
+        <p>Speakers, stand-up, music, mentalists, and emcees as curated options.</p>
       </div>
       <div className="voices-track" data-voices-track>
-        {CAST.map((person) => (
-          <article className="cast-card" key={`${person.role}-${person.name}`}>
-            <button
-              type="button"
-              style={{ display: "block", width: "100%", height: "100%", padding: 0 }}
-              onClick={() => open(person.src, person.alt)}
-              aria-label={person.name}
-            >
-              <img
-                src={person.src}
-                alt={person.alt}
-                style={{ objectPosition: focusFor(person.src) }}
-                loading="lazy"
-              />
-            </button>
-            <div className="cast-card__meta">
-              <h3>{person.name}</h3>
-              <p>
-                {person.role}
-                {person.copy ? ` · ${person.copy.slice(0, 56)}` : ""}
-              </p>
-            </div>
-          </article>
-        ))}
+        {cast.map((person) => {
+          const meta = metaFor(person.src);
+          return (
+            <article className="cast-card" key={`${person.role}-${person.name}`}>
+              <button
+                type="button"
+                className="cast-card__hit"
+                onClick={() => open(person.src, person.alt)}
+                aria-label={person.name}
+              >
+                <img
+                  src={person.src}
+                  alt={person.alt}
+                  style={{ objectFit: meta.fit, objectPosition: meta.focus }}
+                  loading="lazy"
+                />
+              </button>
+              <div className="cast-card__meta">
+                <h3>{person.name}</h3>
+                <p>
+                  {person.role}
+                  {"copy" in person && person.copy ? ` · ${String(person.copy).slice(0, 52)}` : ""}
+                </p>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
 }
 
+export function Winners() {
+  return <PinExperience id="winners" climate="celebrate" beats={WINNER_BEATS} />;
+}
+
 export function Close() {
+  const src = asset("stage-f.webp");
+  const meta = metaFor(src);
   return (
     <section className="close" id="close" data-nav data-climate="celebrate">
       <p className="close__kicker">Infosys Business Incubator</p>
@@ -333,21 +718,9 @@ export function Close() {
       <p>
         {META.date}, 2026 · Building 50 · {META.pax}
       </p>
-      <div
-        style={{
-          marginTop: 40,
-          width: "min(720px, 86vw)",
-          aspectRatio: "16 / 9",
-          position: "relative",
-          overflow: "hidden",
-          marginInline: "auto",
-        }}
-      >
-        <img
-          src={asset("aftermovie.webp")}
-          alt="After movie still"
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%" }}
-        />
+      <p className="close__sub">After movie atmosphere</p>
+      <div className="close__still">
+        <img src={src} alt="After movie atmosphere" style={{ objectFit: meta.fit, objectPosition: meta.focus }} />
       </div>
     </section>
   );

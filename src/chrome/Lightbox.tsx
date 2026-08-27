@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { focusFor } from "../story/assets";
+import { metaFor } from "../story/assets";
 
 type Box = { src: string; alt: string };
 type Ctx = { open: (src: string, alt?: string) => void };
@@ -70,14 +70,16 @@ export function StillPlane({
   alt: string;
   active?: boolean;
 }) {
+  const meta = metaFor(src);
   return (
     <img
       src={src}
       alt={alt}
       className={active ? "is-active" : ""}
-      style={{ objectPosition: focusFor(src) }}
+      style={{ objectFit: meta.fit, objectPosition: meta.focus }}
       loading="lazy"
       data-still=""
+      data-fit={meta.fit}
     />
   );
 }

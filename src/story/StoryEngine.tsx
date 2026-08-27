@@ -2,7 +2,7 @@ import { useEffect, useState, type RefObject } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { focusFor } from "./assets";
+import { metaFor } from "./assets";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -38,21 +38,27 @@ function wirePin(id: string, reduced: boolean) {
 
   const apply = (index: number) => {
     const beat = beats[Math.min(index, beats.length - 1)];
+    const srcHint = beat.dataset.src ?? "";
+    const meta = metaFor(srcHint);
+    const useContain = beat.dataset.contain === "1" || meta.fit === "contain";
+
     imgs.forEach((img, i) => {
       img.classList.toggle("is-active", i === index);
-      if (i === index) img.style.objectPosition = focusFor(img.src);
-      if (beat.dataset.contain === "1" && i === index) {
-        img.style.objectFit = "contain";
-        img.style.background = "#050506";
-      } else if (i === index) {
-        img.style.objectFit = "cover";
-      }
+      if (i !== index) return;
+      const m = metaFor(img.currentSrc || img.src);
+      img.style.objectPosition = m.focus;
+      img.style.objectFit = useContain || m.fit === "contain" ? "contain" : "cover";
+      img.style.background = useContain || m.fit === "contain" ? "#050506" : "transparent";
     });
     steps.forEach((s, i) => s.classList.toggle("is-active", i === index));
     if (kicker) kicker.textContent = beat.dataset.kicker ?? "";
     if (title) title.textContent = beat.dataset.title ?? "";
     if (body) body.textContent = beat.dataset.body ?? "";
-    if (motif) motif.textContent = beat.dataset.motif || motif.textContent;
+    if (motif) {
+      const text = beat.dataset.motif ?? "";
+      motif.textContent = text;
+      motif.hidden = !text;
+    }
   };
 
   apply(0);
@@ -68,7 +74,7 @@ function wirePin(id: string, reduced: boolean) {
     return;
   }
 
-  const endMul = Math.max(beats.length, 2) * 0.95;
+  const endMul = Math.max(beats.length * 0.85, 2.2);
   ScrollTrigger.create({
     trigger: shell,
     start: "top top",
@@ -84,6 +90,8 @@ function wirePin(id: string, reduced: boolean) {
     onEnterBack: () => setClimate(shell.dataset.climate ?? null),
   });
 }
+
+const PIN_IDS = ["buildup", "tank", "floor", "stage", "winners"] as const;
 
 export function useStoryEngine(scope: RefObject<HTMLElement | null>, reduced: boolean) {
   const [active, setActive] = useState("brief");
@@ -146,9 +154,7 @@ export function useStoryEngine(scope: RefObject<HTMLElement | null>, reduced: bo
         atm.style.opacity = "0.28";
       }
 
-      wirePin("buildup", reduced);
-      wirePin("tank", reduced);
-      wirePin("floor", reduced);
+      PIN_IDS.forEach((id) => wirePin(id, reduced));
 
       const voices = root.querySelector<HTMLElement>("[data-voices]");
       const track = root.querySelector<HTMLElement>("[data-voices-track]");
