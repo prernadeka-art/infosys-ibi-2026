@@ -83,7 +83,8 @@ function wirePin(id: string, reduced: boolean) {
     scrub: 0.95,
     anticipatePin: 1,
     onUpdate: (self) => {
-      const idx = Math.min(beats.length - 1, Math.floor(self.progress * beats.length));
+      const n = beats.length;
+      const idx = Math.min(n - 1, Math.floor(self.progress * n - 1e-6));
       apply(idx);
     },
     onEnter: () => setClimate(shell.dataset.climate ?? null),
@@ -156,23 +157,19 @@ export function useStoryEngine(scope: RefObject<HTMLElement | null>, reduced: bo
 
       PIN_IDS.forEach((id) => wirePin(id, reduced));
 
-      const voices = root.querySelector<HTMLElement>("[data-voices]");
       const track = root.querySelector<HTMLElement>("[data-voices-track]");
-      if (voices && track && !reduced && window.innerWidth >= 768) {
-        gsap.to(track, {
-          x: () => -(track.scrollWidth - window.innerWidth + 48),
-          ease: "none",
-          scrollTrigger: {
-            trigger: voices,
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            end: () => `+=${Math.max(track.scrollWidth - window.innerWidth, 600)}`,
-            invalidateOnRefresh: true,
-            onEnter: () => setClimate("celebrate"),
-            onEnterBack: () => setClimate("celebrate"),
-          },
-        });
+      if (track) {
+        const onWheel = (e: WheelEvent) => {
+          if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+          if (track.scrollWidth <= track.clientWidth + 4) return;
+          const atStart = track.scrollLeft <= 0;
+          const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+          if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return;
+          e.preventDefault();
+          track.scrollLeft += e.deltaY;
+        };
+        track.addEventListener("wheel", onWheel, { passive: false });
+        return () => track.removeEventListener("wheel", onWheel);
       }
     },
     { scope, dependencies: [reduced] },

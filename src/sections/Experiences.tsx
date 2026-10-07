@@ -10,6 +10,7 @@ import {
   META,
   MOOD,
   OPENING_BEATS,
+  POST,
   PRE_WEEKS,
   TALENT,
   TROPHIES,
@@ -409,7 +410,7 @@ const WINNER_BEATS: Beat[] = [
     kicker: "Winner treatment",
     title: WINNER_TREATS[0].title,
     body: WINNER_TREATS[0].copy,
-    src: asset("stage-e.webp"),
+    src: asset("winner-laser.webp"),
     alt: "Laser reveal atmosphere",
   },
   {
@@ -428,14 +429,6 @@ const WINNER_BEATS: Beat[] = [
     src: asset("winner-confetti.webp"),
     alt: "Gold confetti",
   },
-  ...TROPHIES.slice(0, 4).map((t, i) => ({
-    id: `trophy-${i}`,
-    kicker: "Trophy suggestions",
-    title: `Trophy option ${i + 1}`,
-    body: "Physical trophy directions for the final beat and photography.",
-    src: t.src,
-    alt: t.alt,
-  })),
 ];
 
 function PinExperience({
@@ -670,10 +663,21 @@ export function Voices() {
         <p className="brief__kicker">Voices</p>
         <h2>Cast for the room</h2>
         <p>Speakers, stand-up, music, mentalists, and emcees as curated options.</p>
+        <p className="voices__hint">Scroll sideways for the full cast</p>
       </div>
-      <div className="voices-track" data-voices-track>
+      <div
+        className="voices-track"
+        data-voices-track
+        tabIndex={0}
+        role="region"
+        aria-label="Cast strip. Scroll horizontally to see everyone."
+      >
         {cast.map((person) => {
           const meta = metaFor(person.src);
+          const blurb =
+            "copy" in person && person.copy
+              ? `${person.role} · ${String(person.copy)}`
+              : person.role;
           return (
             <article className="cast-card" key={`${person.role}-${person.name}`}>
               <button
@@ -691,10 +695,7 @@ export function Voices() {
               </button>
               <div className="cast-card__meta">
                 <h3>{person.name}</h3>
-                <p>
-                  {person.role}
-                  {"copy" in person && person.copy ? ` · ${String(person.copy).slice(0, 52)}` : ""}
-                </p>
+                <p>{blurb}</p>
               </div>
             </article>
           );
@@ -705,12 +706,45 @@ export function Voices() {
 }
 
 export function Winners() {
-  return <PinExperience id="winners" climate="celebrate" beats={WINNER_BEATS} />;
+  return (
+    <>
+      <PinExperience id="winners" climate="celebrate" beats={WINNER_BEATS} />
+      <TrophyStrip />
+    </>
+  );
+}
+
+function TrophyStrip() {
+  return (
+    <section className="trophy-strip" id="trophies" data-climate="celebrate">
+      <div className="trophy-strip__head">
+        <p className="brief__kicker">Trophy suggestions</p>
+        <h2 className="brief__title" style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
+          Physical directions
+        </h2>
+        <p className="brief__lead">Six trophy options for the final beat and photography.</p>
+      </div>
+      <div className="trophy-strip__grid">
+        {TROPHIES.map((t, i) => (
+          <figure className="trophy-strip__cell" key={t.src}>
+            <img src={t.src} alt={t.alt} loading="lazy" />
+            <figcaption>Option {i + 1}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export function Close() {
-  const src = asset("stage-f.webp");
-  const meta = metaFor(src);
+  const hero = asset("stage-f.webp");
+  const heroMeta = metaFor(hero);
+  const postStills = [
+    ...POST.media,
+    { src: asset("credits.webp"), alt: "Credits plate" },
+    { src: asset("photo-a.webp"), alt: "Campus photo moment" },
+  ];
+
   return (
     <section className="close" id="close" data-nav data-climate="celebrate">
       <p className="close__kicker">Infosys Business Incubator</p>
@@ -718,9 +752,34 @@ export function Close() {
       <p>
         {META.date}, 2026 · Building 50 · {META.pax}
       </p>
-      <p className="close__sub">After movie atmosphere</p>
+      <p className="close__sub">Closing atmosphere</p>
       <div className="close__still">
-        <img src={src} alt="After movie atmosphere" style={{ objectFit: meta.fit, objectPosition: meta.focus }} />
+        <img
+          src={hero}
+          alt="Closing atmosphere"
+          style={{ objectFit: heroMeta.fit, objectPosition: heroMeta.focus }}
+        />
+      </div>
+      <div className="close__post">
+        <p className="close__sub" style={{ marginTop: 0 }}>
+          {POST.title}
+        </p>
+        <p>{POST.copy}</p>
+        <div className="close__gallery">
+          {postStills.map((m) => {
+            const meta = metaFor(m.src);
+            return (
+              <figure key={m.src}>
+                <img
+                  src={m.src}
+                  alt={m.alt}
+                  loading="lazy"
+                  style={{ objectFit: meta.fit, objectPosition: meta.focus }}
+                />
+              </figure>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
